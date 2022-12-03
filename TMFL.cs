@@ -5,226 +5,79 @@ namespace TMFL
         public frmTMFL()
         {
             InitializeComponent();
+
+            numLaps.Controls.RemoveAt(0);
+
+            numSlowTyre.Controls.RemoveAt(0);
+            numSlowFuel.Controls.RemoveAt(0);
+            numSlowTime.Controls.RemoveAt(0);
+            numSlowBox.Controls.RemoveAt(0);
+
+            numFastTyre.Controls.RemoveAt(0);
+            numFastFuel.Controls.RemoveAt(0);
+            numFastTime.Controls.RemoveAt(0);
+            numFastBox.Controls.RemoveAt(0);
         }
 
-        // Dry tyre usage connections between numeric field and trackbar
-        private void sldDryTyre_ValueChanged(object sender, EventArgs e)
+        private void btnSlowOut_Click(object sender, EventArgs e)
         {
-            // Set value of numeric field to value of trackbar
-            numDryTyre.Value = sldDryTyre.Value;
-        }
-
-        private void numDryTyre_ValueChanged(object sender, EventArgs e)
-        {
-            // Cast value of numeric field to int and set as value of trackbar
-            sldDryTyre.Value = ((int)numDryTyre.Value);
-
-            numStintLaps.Maximum = numDryTyre.Value;
-        }
-
-        private void numDryTyre_Click(object sender, EventArgs e)
-        {
-            // Select text in numeric field
-            numDryTyre.Select(0, 3);
-        }
-
-        // Dry fuel usage connections between numeric field and trackbar
-        private void sldDryFuel_ValueChanged(object sender, EventArgs e)
-        {
-            // Set value of numeric field to value of trackbar, divided by 10 for decimal place
-            numDryFuel.Value = ((decimal)sldDryFuel.Value) / 10;
-        }
-
-        private void numDryFuel_ValueChanged(object sender, EventArgs e)
-        {
-            // Multiply value of numeric field by 10 to remove decimal place, cast to int and set as value of trackbar
-            sldDryFuel.Value = ((int)(numDryFuel.Value * 10));
-        }
-
-        private void numDryFuel_Click(object sender, EventArgs e)
-        {
-            // Select text in numeric field
-            numDryFuel.Select(0, 4);
-        }
-
-        // Wet tyre usage connections between numeric field and trackbar
-        private void sldWetTyre_ValueChanged(object sender, EventArgs e)
-        {
-            numWetTyre.Value = sldWetTyre.Value;
-        }
-
-        private void numWetTyre_ValueChanged(object sender, EventArgs e)
-        {
-            sldWetTyre.Value = ((int)numWetTyre.Value);
-        }
-
-        private void numWetTyre_Click(object sender, EventArgs e)
-        {
-            numWetTyre.Select(0, 3);
-        }
-
-        // Wet fuel usage connections between numeric field and trackbar
-        private void sldWetFuel_ValueChanged(object sender, EventArgs e)
-        {
-            numWetFuel.Value = ((decimal)sldWetFuel.Value) / 10;
-        }
-
-        private void numWetFuel_ValueChanged(object sender, EventArgs e)
-        {
-            sldWetFuel.Value = ((int)(numWetFuel.Value * 10));
-        }
-
-        private void numWetFuel_Click(object sender, EventArgs e)
-        {
-            numWetFuel.Select(0, 4);
-        }
-
-        private void chkStint_CheckedChanged(object sender, EventArgs e)
-        {
-            // Enable stint controls
-            numStintLaps.Enabled = chkStint.Checked;
-            rdbDry.Enabled = chkStint.Checked;
-            rdbWet.Enabled = chkStint.Checked;
-
-            calculate();
-        }
-
-        private void numStintLaps_ValueChanged(object sender, EventArgs e)
-        {
-            calculate();
-        }
-
-        private void numStintLaps_Click(object sender, EventArgs e)
-        {
-            // Select text
-            numStintLaps.Select(0, numStintLaps.Value.ToString().Length);
-        }
-
-        private void numStintLaps_KeyUp(object sender, KeyEventArgs e)
-        {
-            calculate();
-        }
-
-        public void calculate()
-        {
-            int tyrePercent;
-            int fuelPercent;
-
-            int remainingTyre;
-            int remainingFuel;
-
-            int result;
-
-            // Check if dry conditions are selected
-            if (rdbDry.Checked)
+            if (numSlowTyre.Value > numSlowFuel.Value)
             {
-                // Calculate the usage of both dry tyres and fuel
-                tyrePercent = ((int)numStintLaps.Value) * dryTyreUse;
-                fuelPercent = ((int)(numStintLaps.Value * dryFuelUse));
-
-                // Calculate the maximum usage of both wet tyres and fuel
-                remainingTyre = ((int)((100 - tyrePercent) / wetTyreUse));
-                remainingFuel = ((int)((100 - fuelPercent) / wetFuelUse));
+                txbSlowLaps.Text = Math.Floor(100 / numSlowTyre.Value).ToString();
             }
             else
             {
-                // Calculate the usage of both wet tyres and fuel
-                tyrePercent = ((int)numStintLaps.Value) * wetTyreUse;
-                fuelPercent = ((int)(numStintLaps.Value * wetFuelUse));
-
-                // Calculate the maximum usage of both dry tyres and fuel
-                remainingTyre = ((int)((100 - tyrePercent) / dryTyreUse));
-                remainingFuel = ((int)((100 - fuelPercent) / dryFuelUse));
+                txbSlowLaps.Text = Math.Floor(100 / numSlowFuel.Value).ToString();
             }
 
-            // Select maximum amount of stint laps based on the lowest amount
-            if (remainingTyre < remainingFuel)
-            {
-                result = ((int)numStintLaps.Value) + remainingTyre;
-            }
-            else
-            {
-                result = ((int)numStintLaps.Value) + remainingFuel;
-            }
+            txbSlowPits.Text = Math.Floor(numLaps.Value / int.Parse(txbSlowLaps.Text)).ToString();
 
-            lblStintResult.Text = result + " laps";
+            txbSlowTimeLoss.Text = (numSlowBox.Value - numSlowTime.Value).ToString();
+
+            txbSlowTyresLeft.Text = (100 - (int.Parse(txbSlowLaps.Text) * numSlowTyre.Value)).ToString();
+
+            txbSlowFuelLeft.Text = (100 - (int.Parse(txbSlowLaps.Text) * numSlowFuel.Value)).ToString();
+
+            txbSlowTimeBox.Text = ((100 - decimal.Parse(txbSlowFuelLeft.Text)) / 4).ToString();
+
+            txbSlowFuelLast.Text = ((numLaps.Value - (int.Parse(txbSlowLaps.Text) * int.Parse(txbSlowPits.Text))) * numSlowFuel.Value).ToString();
+
+            txbSlowTimeStint.Text = (((int.Parse(txbSlowLaps.Text) - 1) * numSlowTime.Value) + numSlowBox.Value).ToString();
+
+            decimal slowTimeLeft = (numLaps.Value - (int.Parse(txbSlowLaps.Text) * int.Parse(txbSlowPits.Text))) * numSlowTime.Value;
+
+            txbSlowTimeRace.Text = ((5 + (int.Parse(txbSlowPits.Text) * decimal.Parse(txbSlowTimeStint.Text)) + slowTimeLeft) / 60).ToString("#.##");
         }
 
-        private void rdbDry_CheckedChanged(object sender, EventArgs e)
+        private void btnFastOut_Click(object sender, EventArgs e)
         {
-            calculate();
-        }
-
-        int dryTyreUse = 1;
-        decimal dryFuelUse = 0.1m;
-
-        int wetTyreUse = 1;
-        decimal wetFuelUse = 0.1m;
-
-        // Calculate maximum amount of laps for both dry and wet conditions, and stints
-        private void btnCalculate_Click(object sender, EventArgs e)
-        {
-            // Total maximum laps under dry conditions for tyres and fuel separately
-            int dryTyreResult = ((int)(100 / numDryTyre.Value));
-            int dryFuelResult = ((int)(100 / numDryFuel.Value));
-
-            // Set global variables
-            dryTyreUse = ((int)numDryTyre.Value);
-            dryFuelUse = numDryFuel.Value;
-
-            // Select total maximum laps based on the lowest value between dry tyres and fuel
-            int dryResult = 0;
-
-            if (dryTyreResult < dryFuelResult)
+            if (numFastTyre.Value > numFastFuel.Value)
             {
-                dryResult = dryTyreResult;
+                txbFastLaps.Text = Math.Floor(100 / numFastTyre.Value).ToString();
             }
             else
             {
-                dryResult = dryFuelResult;
+                txbFastLaps.Text = Math.Floor(100 / numFastFuel.Value).ToString();
             }
 
-            // Set maximum dry stint value
-            if (rdbDry.Checked)
-            {
-                numStintLaps.Maximum = dryResult;
-            }
+            txbFastPits.Text = Math.Floor(numLaps.Value / int.Parse(txbFastLaps.Text)).ToString();
 
-            // Total maximum laps under wet conditions for tyres and fuel separately
-            int wetTyreResult = ((int)(100 / numWetTyre.Value));
-            int wetFuelResult = ((int)(100 / numWetFuel.Value));
+            txbFastTimeLoss.Text = (numFastBox.Value - numFastTime.Value).ToString();
 
-            // Set global variables
-            wetTyreUse = ((int)numWetTyre.Value);
-            wetFuelUse = numWetFuel.Value;
+            txbFastTyresLeft.Text = (100 - (int.Parse(txbFastLaps.Text) * numFastTyre.Value)).ToString();
 
-            // Select total maximum laps based on the lowest value between wet tyres and fuel
-            int wetResult = 0;
+            txbFastFuelLeft.Text = (100 - (int.Parse(txbFastLaps.Text) * numFastFuel.Value)).ToString();
 
-            if (wetTyreResult < wetFuelResult)
-            {
-                wetResult = wetTyreResult;
-            }
-            else
-            {
-                wetResult = wetFuelResult;
-            }
+            txbFastTimeBox.Text = ((100 - decimal.Parse(txbFastFuelLeft.Text)) / 4).ToString();
 
-            // Set maximum wet stint value
-            if (rdbWet.Checked)
-            {
-                numStintLaps.Maximum = wetResult;
-            }
+            txbFastFuelLast.Text = ((numLaps.Value - (int.Parse(txbFastLaps.Text) * int.Parse(txbFastPits.Text))) * numFastFuel.Value).ToString();
 
-            // Show results
-            lblDryResult.Text = dryResult.ToString() + " laps";
-            lblWetResult.Text = wetResult.ToString() + " laps";
+            txbFastTimeStint.Text = (((int.Parse(txbFastLaps.Text) - 1) * numFastTime.Value) + numFastBox.Value).ToString();
 
-            // Update stint laps
-            if (chkStint.Checked)
-            {
-                calculate();
-            }
+            decimal fastTimeLeft = (numLaps.Value - (int.Parse(txbFastLaps.Text) * int.Parse(txbFastPits.Text))) * numFastTime.Value;
+
+            txbFastTimeRace.Text = ((5 + (int.Parse(txbFastPits.Text) * decimal.Parse(txbFastTimeStint.Text)) + fastTimeLeft) / 60).ToString("#.##");
+
         }
     }
 }
